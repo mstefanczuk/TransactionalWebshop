@@ -17,6 +17,10 @@ public class Product implements Serializable {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     @Column(name = "name", nullable = false)
     private String name;
 

@@ -1,34 +1,42 @@
-package pl.mstefanczuk.transactionalwebshop.service.implementation;
+package pl.mstefanczuk.transactionalwebshop.component.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import pl.mstefanczuk.transactionalwebshop.component.Cart;
 import pl.mstefanczuk.transactionalwebshop.dto.OrderItem;
 import pl.mstefanczuk.transactionalwebshop.model.Product;
-import pl.mstefanczuk.transactionalwebshop.service.CartService;
 import pl.mstefanczuk.transactionalwebshop.service.ProductService;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-@Service
+@Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class CartServiceImpl implements CartService {
+public class CartImpl implements Cart {
 
     private Map<Long, OrderItem> orderItems;
 
     private final ProductService productService;
 
     @Autowired
-    public CartServiceImpl(ProductService productService) {
+    public CartImpl(ProductService productService) {
         this.productService = productService;
         this.orderItems = new HashMap<>();
     }
 
     @Override
     public void addProductToOrder(Product product, Integer amount) {
+        Product productFromDB = productService.findById(product.getId());
+        if (productFromDB.getStock() <= 0) {
+            System.out.println("Produkt " + product.getName() + " nie może zostać dodany do koszyka," +
+                    " ponieważ nie ma go w magazynie.");
+            return;
+        }
+
         OrderItem orderItem;
 
         if (orderItems.containsKey(product.getId())) {

@@ -8,7 +8,7 @@ import pl.mstefanczuk.transactionalwebshop.cache.CategoryCache;
 import pl.mstefanczuk.transactionalwebshop.model.Category;
 import pl.mstefanczuk.transactionalwebshop.model.Product;
 import pl.mstefanczuk.transactionalwebshop.service.CategoryService;
-import pl.mstefanczuk.transactionalwebshop.service.CartService;
+import pl.mstefanczuk.transactionalwebshop.component.Cart;
 import pl.mstefanczuk.transactionalwebshop.service.ProductService;
 
 import java.io.Serializable;
@@ -23,8 +23,8 @@ public class TestBean implements Serializable {
 
     private final CategoryCache categoryCache;
 
-    private CartService cartOne;
-    private CartService cartTwo;
+    private Cart cartOne;
+    private Cart cartTwo;
 
     @Autowired
     public TestBean(CategoryService categoryService, CategoryCache categoryCache, ApplicationContext applicationContext,
@@ -32,8 +32,8 @@ public class TestBean implements Serializable {
         this.categoryService = categoryService;
         this.categoryCache = categoryCache;
 
-        this.cartOne = applicationContext.getBean(CartService.class);
-        this.cartTwo = applicationContext.getBean(CartService.class);
+        this.cartOne = applicationContext.getBean(Cart.class);
+        this.cartTwo = applicationContext.getBean(Cart.class);
 
         this.productService = productService;
     }
@@ -94,20 +94,22 @@ public class TestBean implements Serializable {
     public void testTwoCartsWithTheSameProduct() {
         System.out.println("\n\n##### Test dwóch koszyków: zamówienie tych samych produktów #####");
 
-        Product product = productService.findById(2006L);
-        printProductStock(product);
+        Product productOne = productService.findById(2006L);
+        Product productTwo = productService.findById(2002L);
+        printProductStock(productOne);
 
-        addProductToCartOne(product, 3);
-        addProductToCartTwo(product, 2);
+        addProductToCartOne(productOne, 3);
+        addProductToCartOne(productTwo, 3);
+        addProductToCartTwo(productOne, 2);
 
         submitOrderForCartTwo();
-        printProductStock(product);
+        printProductStock(productOne);
 
         System.out.println("# Odczekanie 2 sekund");
         wait(2000);
 
         submitOrderForCartOne();
-        printProductStock(product);
+        printProductStock(productOne);
     }
 
     private void printCategories() {
